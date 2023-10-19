@@ -48,6 +48,11 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/addToCart", async (req, res) => {
+      const result = await addToCartCollection.find().toArray();
+      res.send(result);
+    });
+
     app.post("/products", async (req, res) => {
       const product = req.body;
       const result = await productsCollection.insertOne(product);
@@ -57,6 +62,12 @@ async function run() {
     app.post("/addToCart", async (req, res) => {
       const product = req.body;
       const result = await addToCartCollection.insertOne(product);
+      res.send(result);
+    });
+    app.delete("/addToCart/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: id };
+      const result = await addToCartCollection.deleteOne(query);
       res.send(result);
     });
 
