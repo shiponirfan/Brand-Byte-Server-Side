@@ -26,7 +26,6 @@ async function run() {
 
     const brandsCollection = client.db("brandsDB").collection("brands");
     const productsCollection = client.db("brandsDB").collection("products");
-    const addToCartCollection = client.db("brandsDB").collection("addToCart");
 
     app.get("/brands", async (req, res) => {
       const query = { tag: "brands" };
@@ -48,8 +47,13 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/addToCart", async (req, res) => {
-      const result = await addToCartCollection.find().toArray();
+    app.get("/addToCart/:user", async (req, res) => {
+      const user = req.params.user;
+      const userCartCollection = client
+        .db("brandsDB")
+        .collection("CartItemFor." + user);
+      const query = { userEmail: user };
+      const result = await userCartCollection.find(query).toArray();
       res.send(result);
     });
 
@@ -61,7 +65,11 @@ async function run() {
 
     app.post("/addToCart", async (req, res) => {
       const product = req.body;
-      const result = await addToCartCollection.insertOne(product);
+      const getUserEmail = product.userEmail;
+      const userCartCollection = client
+        .db("brandsDB")
+        .collection("CartItemFor." + getUserEmail);
+      const result = await userCartCollection.insertOne(product);
       res.send(result);
     });
 
@@ -89,10 +97,14 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/addToCart/:id", async (req, res) => {
+    app.delete("/addToCart/:id/:user", async (req, res) => {
       const id = req.params.id;
+      const user = req.params.user;
       const query = { _id: id };
-      const result = await addToCartCollection.deleteOne(query);
+      const userCartCollection = client
+        .db("brandsDB")
+        .collection("CartItemFor." + user);
+      const result = await userCartCollection.deleteOne(query);
       res.send(result);
     });
 
